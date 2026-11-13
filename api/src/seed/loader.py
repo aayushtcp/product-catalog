@@ -93,9 +93,7 @@ async def count_rows() -> dict[str, int]:
     counts: dict[str, int] = {}
     async with AsyncSessionLocal() as session:
         for model in COUNTED_MODELS:
-            result = await session.execute(
-                select(func.count()).select_from(model)
-            )
+            result = await session.execute(select(func.count()).select_from(model))
             counts[model.__tablename__] = result.scalar_one()
 
         result = await session.execute(

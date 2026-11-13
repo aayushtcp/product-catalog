@@ -37,7 +37,9 @@ DB_SETTINGS = {
 }
 
 # SQLAlchemy URL for local PostgreSQL (psycopg driver)
-DATABASE_URL = f"postgresql+psycopg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+DATABASE_URL = (
+    f"postgresql+psycopg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+)
 
 # Initialize the async engine
 engine = create_async_engine(DATABASE_URL, echo=False)

@@ -30,7 +30,9 @@ def build_products(
 
     for product in products:
         product_id = product["id"]
-        ensure_reference(brand_ids, product["brandId"], "brand", f"Product {product_id}")
+        ensure_reference(
+            brand_ids, product["brandId"], "brand", f"Product {product_id}"
+        )
         ensure_reference(
             category_ids,
             product["categoryId"],

@@ -21,7 +21,6 @@ from constants import (
     MISSING_ENV_VARIABLE_PLACEHOLDER,
 )
 
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -49,6 +48,7 @@ app.add_middleware(
     allow_methods=ALLOWED_HTTP_METHODS,
     allow_headers=ALLOWED_REQUEST_HEADERS,
 )
+
 
 # Redirect the root path ('/') to the Swagger UI documentation
 @app.get("/", include_in_schema=False)
