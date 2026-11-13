@@ -1,0 +1,7 @@
+{
+  "include": ["api/src"],
+  "exclude": ["api/venv", "**/__pycache__", "**/.pytest_cache"],
+  "extraPaths": ["api/src"],
+  "venvPath": "api",
+  "venv": "venv"
+}

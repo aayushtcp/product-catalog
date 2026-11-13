@@ -27,6 +27,15 @@ db_name = os.getenv(DB_NAME_KEY, "product_catalog")
 db_user = os.getenv(DB_USER_KEY, "postgres")
 db_password = os.getenv(DB_PASSWORD_KEY, "postgres")
 
+# Connection settings shared by the async engine and the seed's database check.
+DB_SETTINGS = {
+    "host": db_host,
+    "port": int(db_port),
+    "user": db_user,
+    "password": db_password,
+    "dbname": db_name,
+}
+
 # SQLAlchemy URL for local PostgreSQL (psycopg driver)
 DATABASE_URL = f"postgresql+psycopg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 

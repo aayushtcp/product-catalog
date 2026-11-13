@@ -1,19 +1,18 @@
-from typing import Union
 from typing_extensions import TypeAliasType
 
 # Recursive type alias representing any valid JSON data structure.
 JSONType = TypeAliasType(
     "JSONType",
-    "Union[dict[str, JSONType], list[JSONType], str, int, float, bool, None]",
+    "dict[str, JSONType] | list[JSONType] | str | int | float | bool | None",
 )
 """
-JSONType is a recursive type alias that represents any valid JSON value.
+A recursive type alias for any value that can appear in JSON.
 
-It includes:
-- Primitive types: null (`None`), boolean (`bool`), number (`int`, `float`), and string (`str`)
-- Lists of JSON values (can be nested)
-- Dictionaries with string keys and JSON values (can be nested)
+It covers:
+- Scalars: `None`, `bool`, `int`, `float`, and `str`
+- Lists whose items are themselves JSON values
+- Objects with string keys and JSON values
 
-This type is useful for annotating variables, request/response bodies, or configurations
-that conform to the JSON specification.
+Use it to annotate parsed JSON, request/response payloads, or configuration data
+that follows the JSON data model.
 """
