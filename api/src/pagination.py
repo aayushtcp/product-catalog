@@ -19,20 +19,8 @@ from schemas import Page
 
 MAX_LIMIT = 50
 
-
-def _env_positive_int(key: str, default: int) -> int:
-    """Read a positive int from the environment; fall back to `default`."""
-    try:
-        value = int(os.getenv(key, default))
-    except (TypeError, ValueError):
-        return default
-    return value if value >= 1 else default
-
-
-DEFAULT_PAGE = _env_positive_int(PAGINATION_PAGE_NUMBER, DEFAULT_PAGINATION_PAGE_NUMBER)
-DEFAULT_LIMIT = min(
-    _env_positive_int(PAGINATION_PAGE_SIZE, DEFAULT_PAGINATION_PAGE_SIZE), MAX_LIMIT
-)
+DEFAULT_PAGE = int(os.getenv(PAGINATION_PAGE_NUMBER, DEFAULT_PAGINATION_PAGE_NUMBER))
+DEFAULT_LIMIT = int(os.getenv(PAGINATION_PAGE_SIZE, DEFAULT_PAGINATION_PAGE_SIZE))
 
 
 @dataclass(frozen=True)
@@ -79,11 +67,6 @@ def pagination_params(
 Pagination = Depends(pagination_params)
 
 
-def total_pages(total: int, limit: int) -> int:
-    """Number of pages for `total` rows (0 when empty)."""
-    return math.ceil(total / limit) if total else 0
-
-
 def build_page(items: Sequence[Any], params: PaginationParams, total: int) -> Page:
     """Wrap serialized items and metadata in the shared `Page` response."""
     return Page(
@@ -91,7 +74,7 @@ def build_page(items: Sequence[Any], params: PaginationParams, total: int) -> Pa
         page=params.page,
         limit=params.limit,
         total=total,
-        total_pages=total_pages(total, params.limit),
+        total_pages=math.ceil(total / params.limit),
     )
 
 

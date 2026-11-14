@@ -1,4 +1,4 @@
-"""API error classes, the error payload builder and FastAPI exception handlers."""
+"""API error classes and FastAPI exception handlers."""
 
 import logging
 from typing import Any
@@ -7,9 +7,6 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
-from constants import SCHEMA_MODEL_DUMP_JSON_MODE
-from schemas import ErrorBody, ErrorDetail, ErrorResponse
 
 logger = logging.getLogger(__name__)
 
@@ -40,24 +37,14 @@ class NotFoundError(ApiError):
     code = "NOT_FOUND"
 
 
-def error_payload(
-    code: str, message: str, details: list[dict[str, Any]] | None = None
-) -> dict[str, Any]:
-    """Build the shared `{"error": {...}}` JSON payload."""
-    body = ErrorBody(
-        code=code,
-        message=message,
-        details=[ErrorDetail(**d) for d in details] if details else None,
-    )
-    return ErrorResponse(error=body).model_dump(
-        mode=SCHEMA_MODEL_DUMP_JSON_MODE, exclude_none=True
-    )
-
-
-def _json(status: int, code: str, message: str, details=None) -> JSONResponse:
-    return JSONResponse(
-        status_code=status, content=error_payload(code, message, details)
-    )
+def _json(
+    status: int, code: str, message: str, details: list | None = None
+) -> JSONResponse:
+    """Build the shared `{"error": {...}}` response."""
+    error: dict[str, Any] = {"code": code, "message": message}
+    if details:
+        error["details"] = details
+    return JSONResponse(status_code=status, content={"error": error})
 
 
 def handle_exception(error: Exception) -> JSONResponse:
@@ -77,33 +64,20 @@ def handle_exception(error: Exception) -> JSONResponse:
 
 
 def register_exception_handlers(app: FastAPI) -> None:
-    """Attach handlers so every error uses the shared shape."""
-
-    @app.exception_handler(ApiError)
-    async def api_error(_: Request, exc: ApiError):
-        return _json(exc.status_code, exc.code, exc.message, exc.details)
+    """Attach handlers so errors raised outside the routers use the shared shape."""
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(_: Request, exc: RequestValidationError):
         details = [
-            {
-                "field": str(e["loc"][-1]) if e.get("loc") else None,
-                "value": (
-                    e.get("input")
-                    if isinstance(e.get("input"), (str, int, float, bool))
-                    else None
-                ),
-                "message": e.get("msg"),
-            }
+            {"field": str(e["loc"][-1]), "value": e.get("input"), "message": e["msg"]}
             for e in exc.errors()
         ]
-        first = details[0] if details else {}
-        message = (
-            f"{first.get('field')}: {first.get('message')}"
-            if first
-            else "Invalid input"
+        return _json(
+            400,
+            "VALIDATION_ERROR",
+            f"{details[0]['field']}: {details[0]['message']}",
+            details,
         )
-        return _json(400, "VALIDATION_ERROR", message, details)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error(_: Request, exc: StarletteHTTPException):
@@ -112,5 +86,4 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unexpected_error(_: Request, exc: Exception):
-        logger.exception("Unhandled error")
-        return _json(500, "INTERNAL_ERROR", "Unexpected server error")
+        return handle_exception(exc)

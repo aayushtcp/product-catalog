@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Any
 
 from enums import ProductSort
-from schemas import BrandRef, CamelModel, CategoryRef, ImageOut
+from schemas import CommonRef, CamelModel, ImageOut
 
 
 class ProductCard(CamelModel):
@@ -15,8 +15,8 @@ class ProductCard(CamelModel):
         id (str): Product ID.
         slug (str): URL-friendly product identifier.
         name (str): Product name.
-        brand (BrandRef): Brand of the product.
-        category (CategoryRef): Sub-category of the product.
+        brand (CommonRef): Brand of the product.
+        category (CommonRef): Sub-category of the product.
         price (float | None): Lowest variant price.
         price_max (float | None): Highest variant price, for "from €..." display.
         compare_at_price (float | None): Old price, only when on sale.
@@ -29,8 +29,8 @@ class ProductCard(CamelModel):
     id: str
     slug: str
     name: str
-    brand: BrandRef
-    category: CategoryRef
+    brand: CommonRef
+    category: CommonRef
     price: float | None
     price_max: float | None
     compare_at_price: float | None
@@ -111,7 +111,7 @@ class ProductDetail(CamelModel):
         slug (str): URL-friendly product identifier.
         name (str): Product name.
         description (str | None): Product description.
-        brand (BrandRef): Brand of the product.
+        brand (CommonRef): Brand of the product.
         category_path (list[CategoryRef]): Main category first, then sub-category.
         attributes (dict[str, Any]): Product details; empty values are left out.
         features (list[str]): Short selling points.
@@ -125,8 +125,8 @@ class ProductDetail(CamelModel):
     slug: str
     name: str
     description: str | None
-    brand: BrandRef
-    category_path: list[CategoryRef]
+    brand: CommonRef
+    category_path: list[CommonRef]
     attributes: dict[str, Any]
     features: list[str]
     images: list[ImageOut]

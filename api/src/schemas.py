@@ -97,15 +97,8 @@ class ImageOut(CamelModel):
     alt: str
 
 
-class BrandRef(CamelModel):
-    """Short brand reference used inside product responses."""
-
-    slug: str
-    name: str
-
-
-class CategoryRef(CamelModel):
-    """Short category reference used inside product responses."""
+class CommonRef(CamelModel):
+    """Short brand reference and category used inside product responses."""
 
     slug: str
     name: str

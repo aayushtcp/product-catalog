@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from constants import SCHEMA_MODEL_DUMP_JSON_MODE
 from errors import ValidationApiError, NotFoundError
 from pagination import PaginationParams, build_page
-from schemas import BrandRef, CategoryRef
+from schemas import CommonRef
 from datatypes import JSONType
 from serializers import image_out, to_float
 
@@ -45,8 +45,8 @@ def _to_card(product: Product) -> ProductCard:
         id=product.id,
         slug=product.slug,
         name=product.name,
-        brand=BrandRef(slug=product.brand.slug, name=product.brand.name),
-        category=CategoryRef(slug=product.category.slug, name=product.category.name),
+        brand=CommonRef(slug=product.brand.slug, name=product.brand.name),
+        category=CommonRef(slug=product.category.slug, name=product.category.name),
         price=to_float(product.min_price),
         price_max=to_float(highest),
         compare_at_price=to_float(compare_at),
@@ -107,8 +107,8 @@ def _to_detail(product: Product, category_path: list) -> ProductDetail:
         slug=product.slug,
         name=product.name,
         description=product.description,
-        brand=BrandRef(slug=product.brand.slug, name=product.brand.name),
-        category_path=[CategoryRef(slug=c.slug, name=c.name) for c in category_path],
+        brand=CommonRef(slug=product.brand.slug, name=product.brand.name),
+        category_path=[CommonRef(slug=c.slug, name=c.name) for c in category_path],
         attributes={
             k: v for k, v in (product.attributes or {}).items() if v is not None
         },
