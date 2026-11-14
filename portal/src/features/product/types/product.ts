@@ -1,6 +1,20 @@
 export type Ref = { slug: string; name: string };
 export type Img = { url: string; alt: string | null };
 
+export type CategoryNode = {
+  slug: string;
+  name: string;
+  productCount: number;
+  children: CategoryNode[];
+};
+
+export type Brand = {
+  slug: string;
+  name: string;
+  country: string | null;
+  productCount: number;
+};
+
 export type Paged<T> = {
   items: T[];
   page: number;

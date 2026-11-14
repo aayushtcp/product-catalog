@@ -10,7 +10,7 @@ from schemas import ImageOut
 
 def base_url() -> str:
     """Public API base URL from `.env`, e.g. `http://localhost:2403`."""
-    return os.getenv(API_BASE_URL_KEY, "http://localhost:2403").rstrip("/")
+    return os.getenv(API_BASE_URL_KEY, "http://localhost:2403").strip().rstrip("/")
 
 
 def image_url(path: str) -> str:

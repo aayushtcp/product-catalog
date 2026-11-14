@@ -7,9 +7,9 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
-  ghost: "text-navy hover:bg-dusk-100",
+  ghost: "text-navy cursor-pointer hover:bg-dusk-100",
   primary:
-    "bg-sunset font-bold text-white transition-colors hover:bg-sunset-600",
+    "bg-sunset cursor-pointer font-bold text-white transition-colors hover:bg-sunset-600",
 };
 
 export default function Button({

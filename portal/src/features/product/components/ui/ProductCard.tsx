@@ -25,7 +25,7 @@ export default function ProductCard({
           sizes="(min-width: 768px) 25vw, 50vw"
         />
         {!p.inStock && (
-          <span className="absolute left-3 top-3 rounded-full bg-navy px-3 py-1 text-xs font-bold text-white">
+          <span className="absolute left-3 top-3 rounded-xl bg-navy px-3 py-1 text-xs font-bold text-white">
             Sold out
           </span>
         )}

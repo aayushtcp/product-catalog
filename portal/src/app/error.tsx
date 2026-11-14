@@ -33,14 +33,14 @@ export default function ErrorPage({
         <Button
           variant="primary"
           onClick={() => reset()}
-          className="inline-flex items-center gap-2 rounded-full px-6 py-3"
+          className="inline-flex items-center gap-2 rounded-xl px-6 py-3"
         >
           <RefreshCw size={18} aria-hidden="true" />
           Try again
         </Button>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-full border border-dusk-100 bg-white px-6 py-3 font-bold text-navy transition-colors hover:border-navy"
+          className="inline-flex items-center gap-2 rounded-xl border border-dusk-100 bg-white px-6 py-3 font-bold text-navy transition-colors hover:border-navy"
         >
           Back home
         </Link>

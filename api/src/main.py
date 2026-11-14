@@ -9,6 +9,7 @@ from fastapi.responses import RedirectResponse
 from models import __all__  # Registers all SQLAlchemy models
 
 # Project-specific imports
+from errors import register_exception_handlers
 from product.router import router as product_router
 from review.router import router as review_router
 from category.router import router as category_router
@@ -35,6 +36,8 @@ app = FastAPI(
     title=os.getenv(APP_NAME_KEY, MISSING_ENV_VARIABLE_PLACEHOLDER),
     description=os.getenv(APP_DESCRIPTION_KEY, MISSING_ENV_VARIABLE_PLACEHOLDER),
 )
+
+register_exception_handlers(app)
 
 
 # Configure CORS (Cross-Origin Resource Sharing) to allow specific origins

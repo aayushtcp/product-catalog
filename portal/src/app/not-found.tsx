@@ -18,14 +18,14 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-full bg-navy px-6 py-3 font-bold text-white transition-colors hover:bg-navy-800"
+          className="inline-flex items-center gap-2 rounded-xl bg-navy px-6 py-3 font-bold text-white transition-colors hover:bg-navy-800"
         >
           <House size={18} aria-hidden="true" />
           Back home
         </Link>
         <Link
           href="/products"
-          className="inline-flex items-center gap-2 rounded-full border border-dusk-100 bg-white px-6 py-3 font-bold text-navy transition-colors hover:border-navy"
+          className="inline-flex items-center gap-2 rounded-xl border border-dusk-100 bg-white px-6 py-3 font-bold text-navy transition-colors hover:border-navy"
         >
           Browse products
         </Link>

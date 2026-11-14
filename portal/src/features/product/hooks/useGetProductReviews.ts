@@ -1,8 +1,8 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { api } from "@/shared/api";
 import { ENDPOINTS } from "../constants/endpoints";
 import { productKeys } from "../constants/queryKeys";
 import type { Paged, Review } from "../types/product";
-import { api } from "@/shared/api";
 
 export const useGetProductReviews = (slug: string, page = 1, limit = 5) =>
   useQuery({

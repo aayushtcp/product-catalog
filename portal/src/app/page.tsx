@@ -11,13 +11,13 @@ export default function HomePage() {
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
           href="/products"
-          className="rounded-full bg-sunset px-5 py-2.5 font-bold text-white transition-colors hover:bg-sunset-600"
+          className="rounded-xl bg-sunset px-5 py-2.5 font-bold text-white transition-colors hover:bg-sunset-600"
         >
           Browse products
         </Link>
         <Link
           href="/collections"
-          className="rounded-full border border-dusk-100 bg-white px-5 py-2.5 font-bold text-navy transition-colors hover:border-navy"
+          className="rounded-xl border border-dusk-100 bg-white px-5 py-2.5 font-bold text-navy transition-colors hover:border-navy"
         >
           Collections
         </Link>

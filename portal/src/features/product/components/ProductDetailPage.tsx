@@ -1,7 +1,9 @@
 "use client";
 
 import map from "lodash/map";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ProductImage from "@/shared/components/ui/ProductImage";
 import { formatPrice } from "@/shared/utils";
@@ -41,7 +43,7 @@ function stockLabel(stock: number) {
 }
 
 const chip = (active: boolean, soldOut: boolean) =>
-  `rounded-full border px-4 py-1.5 text-sm font-semibold ${
+  `rounded-xl border px-4 py-1.5 text-sm font-semibold ${
     active ? "border-navy bg-navy text-white" : "border-dusk bg-white text-navy"
   } ${soldOut ? "line-through opacity-60" : ""}`;
 
@@ -103,6 +105,7 @@ function Reviews({ slug }: { slug: string }) {
 }
 
 export default function ProductPage({ slug }: { slug: string }) {
+  const router = useRouter();
   const { data: p, isPending, isError } = useGetProductDetails(slug);
   const { data: similar } = useGetSimilarProduct(slug);
   const [sku, setSku] = useState<string>();
@@ -110,8 +113,19 @@ export default function ProductPage({ slug }: { slug: string }) {
 
   if (isPending)
     return <p className="mx-auto max-w-7xl px-5 py-10">Loading…</p>;
-  if (isError)
-    return <p className="mx-auto max-w-7xl px-5 py-10">Product not found.</p>;
+  if (isError) {
+    return (
+      <div className="mx-auto w-full max-w-7xl px-5 py-10">
+        <p className="text-navy/70">Product not found.</p>
+        <Link
+          href="/products"
+          className="mt-4 inline-block font-semibold text-navy hover:underline"
+        >
+          Back to products
+        </Link>
+      </div>
+    );
+  }
 
   const v = p.variants.find((x) => x.sku === sku) ?? p.variants[0];
   const colors = [...new Set(map(p.variants, (x) => x.color))].filter(Boolean);
@@ -132,7 +146,15 @@ export default function ProductPage({ slug }: { slug: string }) {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-5 py-8">
-      <nav className="mb-6 text-sm text-navy-700">
+      <nav className="mb-6 flex items-center gap-2 text-sm text-navy-700">
+        <button
+          type="button"
+          aria-label="Go back"
+          onClick={() => router.back()}
+          className="inline-flex items-center hover:text-navy"
+        >
+          <ArrowLeft size={16} aria-hidden="true" />
+        </button>
         <Link href="/products" className="hover:underline">
           Shop
         </Link>

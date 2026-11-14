@@ -7,4 +7,6 @@ export const productKeys = {
   reviews: (slug: string, page: number) =>
     ["products", "reviews", slug, page] as const,
   similar: (slug: string) => ["products", "similar", slug] as const,
+  categories: () => ["categories"] as const,
+  brands: () => ["brands"] as const,
 };

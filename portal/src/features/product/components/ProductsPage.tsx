@@ -1,19 +1,24 @@
 "use client";
 
 import map from "lodash/map";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type SubmitEvent, useEffect, useState } from "react";
 import Button from "@/shared/components/ui/Button";
+import { useGetBrands } from "../hooks/useGetBrands";
+import { useGetCategories } from "../hooks/useGetCategories";
 import { useGetProducts } from "../hooks/useGetProducts";
 import type { ProductSort } from "../types/product";
 import {
   getPageNavigation,
   getPaginationLabel,
   PAGE_SIZE,
+  parseOptionalNumber,
   parsePage,
+  parseSlugs,
 } from "../utils";
 import ProductCard from "./ui/ProductCard";
+import ProductFilters from "./ui/ProductFilters";
 
 const SKELETON_ITEMS = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -32,6 +37,15 @@ export default function ProductsPage() {
 
   const q = searchParams.get("q") ?? "";
   const category = searchParams.get("category") ?? undefined;
+  const brandParam = searchParams.get("brand");
+  const selectedBrands = parseSlugs(brandParam);
+  const minPrice = parseOptionalNumber(searchParams.get("minPrice"));
+  const maxPrice = parseOptionalNumber(searchParams.get("maxPrice"));
+  const minRatingValue = parseOptionalNumber(searchParams.get("minRating"));
+  const minRating =
+    minRatingValue !== undefined && minRatingValue >= 1 && minRatingValue <= 5
+      ? minRatingValue
+      : undefined;
   const sortParam = searchParams.get("sort");
   const sort: ProductSort = SORT_OPTIONS.some((o) => o.value === sortParam)
     ? (sortParam as ProductSort)
@@ -45,12 +59,18 @@ export default function ProductsPage() {
     setText(q);
   }, [q]);
 
-  const { data, isPending, isError, refetch } = useGetProducts({
+  const { data: categories } = useGetCategories();
+  const { data: brands } = useGetBrands();
+  const { data, isPending, isError, error, refetch } = useGetProducts({
     q: q || undefined,
     category,
+    brand: selectedBrands.length > 0 ? selectedBrands.join(",") : undefined,
+    minPrice,
+    maxPrice,
     sort,
     page,
     inStock: inStock || undefined,
+    minRating,
     limit: PAGE_SIZE,
   });
 
@@ -69,16 +89,30 @@ export default function ProductsPage() {
     update({ q: text.trim() || null, page: null });
   }
 
-  const hasFilters = Boolean(q || category || inStock || sortParam);
+  const hasFilters = Boolean(
+    q ||
+      category ||
+      brandParam ||
+      searchParams.has("minPrice") ||
+      searchParams.has("maxPrice") ||
+      searchParams.has("minRating") ||
+      inStock ||
+      sortParam,
+  );
   const { previous, next } = getPageNavigation(page, data?.totalPages ?? 0);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-5 py-10">
-      <h1 className="text-3xl font-extrabold tracking-tight text-navy md:text-4xl">
-        Products
-      </h1>
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-widest text-navy/60">
+            Shop
+          </p>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-navy md:text-4xl">
+            Products
+          </h1>
+        </div>
 
-      <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <form onSubmit={onSearch} className="flex w-full gap-2 md:max-w-md">
           <label htmlFor="product-q" className="sr-only">
             Search products
@@ -100,123 +134,121 @@ export default function ProductsPage() {
             Search
           </Button>
         </form>
+      </div>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2 text-sm font-semibold text-navy">
-            <input
-              type="checkbox"
-              checked={inStock}
-              onChange={(event) =>
-                update({
-                  inStock: event.target.checked ? "true" : null,
-                  page: null,
-                })
-              }
-              className="size-4 accent-navy"
-            />
-            In stock only
-          </label>
+      <div className="mt-8 grid gap-6 md:grid-cols-[16rem_minmax(0,1fr)] md:gap-8">
+        <ProductFilters
+          categories={categories ?? []}
+          brands={brands ?? []}
+          category={category}
+          selectedBrands={selectedBrands}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          minRating={minRating}
+          inStock={inStock}
+          hasFilters={hasFilters}
+          onUpdate={update}
+          onClear={() => router.push(pathname)}
+        />
 
-          <label className="flex items-center gap-2 text-sm font-semibold text-navy">
-            Sort
-            <select
-              value={sort}
-              onChange={(event) =>
-                update({ sort: event.target.value, page: null })
-              }
-              className="rounded-lg border border-dusk-100 bg-white px-3 py-1.5 text-navy focus:border-dusk focus:outline-none focus:ring-2 focus:ring-dusk/30"
-            >
-              {map(SORT_OPTIONS, (option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
+        <div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-navy/70">
+              {isPending
+                ? "Loading products…"
+                : data
+                  ? `${data.total} ${data.total === 1 ? "product" : "products"}`
+                  : "Products"}
+            </p>
+
+            <label className="flex items-center gap-2 text-sm font-semibold text-navy">
+              Sort
+              <select
+                value={sort}
+                onChange={(event) =>
+                  update({ sort: event.target.value, page: null })
+                }
+                className="rounded-lg border border-dusk-100 bg-white px-3 py-1.5 text-navy focus:border-dusk focus:outline-none focus:ring-2 focus:ring-dusk/30"
+              >
+                {map(SORT_OPTIONS, (option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {isPending && (
+            <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+              {map(SKELETON_ITEMS, (item) => (
+                <div
+                  key={item}
+                  className="aspect-3/4 animate-pulse rounded-2xl bg-dusk-100"
+                />
               ))}
-            </select>
-          </label>
+            </div>
+          )}
 
-          {hasFilters && (
-            <Button
-              variant="ghost"
-              onClick={() => router.push(pathname)}
-              className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold"
-            >
-              <X size={14} aria-hidden="true" />
-              Clear
-            </Button>
+          {isError && (
+            <div className="mt-6 rounded-2xl border border-dusk-100 bg-white p-6">
+              <p className="font-semibold text-navy">
+                {error instanceof Error
+                  ? error.message
+                  : "Could not load products."}
+              </p>
+              <Button
+                variant="primary"
+                onClick={() => refetch()}
+                className="mt-3 rounded-full px-4 py-2"
+              >
+                Try again
+              </Button>
+            </div>
+          )}
+
+          {!isPending && !isError && data && data.items.length === 0 && (
+            <div className="mt-6 rounded-2xl border border-dusk-100 bg-white p-6">
+              <p className="font-semibold text-navy">No products found.</p>
+              <p className="mt-1 text-navy/70">
+                Try a different search or clear the filters.
+              </p>
+            </div>
+          )}
+
+          {!isPending && !isError && data && data.items.length > 0 && (
+            <>
+              <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+                {map(data.items, (product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              <div className="mt-8 flex items-center justify-between gap-4 border-t border-dusk-100 pt-6">
+                <Button
+                  variant="ghost"
+                  disabled={previous === null}
+                  onClick={() => update({ page: String(previous) })}
+                  className="rounded-full border border-dusk-100 bg-white px-4 py-2 font-semibold disabled:opacity-40"
+                >
+                  Previous
+                </Button>
+                <span className="text-sm text-navy/70">
+                  {getPaginationLabel(page, data.totalPages, data.total)}
+                </span>
+                <Button
+                  variant="ghost"
+                  disabled={next === null}
+                  onClick={() => update({ page: String(next) })}
+                  className="rounded-full border border-dusk-100 bg-white px-4 py-2 font-semibold disabled:opacity-40"
+                >
+                  Next
+                </Button>
+              </div>
+            </>
           )}
         </div>
       </div>
-
-      {category && (
-        <p className="mt-4 text-sm text-navy/70">
-          Category: <span className="font-semibold text-navy">{category}</span>
-        </p>
-      )}
-
-      {isPending && (
-        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {map(SKELETON_ITEMS, (item) => (
-            <div
-              key={item}
-              className="aspect-3/4 animate-pulse rounded-2xl bg-dusk-100"
-            />
-          ))}
-        </div>
-      )}
-
-      {isError && (
-        <div className="mt-8 rounded-2xl border border-dusk-100 bg-white p-6">
-          <p className="font-semibold text-navy">Could not load products.</p>
-          <Button
-            variant="primary"
-            onClick={() => refetch()}
-            className="mt-3 rounded-full px-4 py-2"
-          >
-            Try again
-          </Button>
-        </div>
-      )}
-
-      {!isPending && !isError && data && data.items.length === 0 && (
-        <div className="mt-8 rounded-2xl border border-dusk-100 bg-white p-6">
-          <p className="font-semibold text-navy">No products found.</p>
-          <p className="mt-1 text-navy/70">
-            Try a different search or clear the filters.
-          </p>
-        </div>
-      )}
-
-      {!isPending && !isError && data && data.items.length > 0 && (
-        <>
-          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {map(data.items, (product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-
-          <div className="mt-8 flex items-center justify-between gap-4 border-t border-dusk-100 pt-6">
-            <Button
-              variant="ghost"
-              disabled={previous === null}
-              onClick={() => update({ page: String(previous) })}
-              className="rounded-full border border-dusk-100 bg-white px-4 py-2 font-semibold disabled:opacity-40"
-            >
-              Previous
-            </Button>
-            <span className="text-sm text-navy/70">
-              {getPaginationLabel(page, data.totalPages, data.total)}
-            </span>
-            <Button
-              variant="ghost"
-              disabled={next === null}
-              onClick={() => update({ page: String(next) })}
-              className="rounded-full border border-dusk-100 bg-white px-4 py-2 font-semibold disabled:opacity-40"
-            >
-              Next
-            </Button>
-          </div>
-        </>
-      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { api } from "@/shared/api";
 import { ENDPOINTS } from "../constants/endpoints";
 import { productKeys } from "../constants/queryKeys";
 import type {
@@ -6,7 +7,6 @@ import type {
   ProductCardData,
   ProductListParams,
 } from "../types/product";
-import { api } from "@/shared/api";
 
 export const useGetProducts = (params: ProductListParams) =>
   useQuery({

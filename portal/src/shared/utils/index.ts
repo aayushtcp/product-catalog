@@ -15,10 +15,15 @@ export const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 export function resolveImageUrl(url: string | null | undefined) {
   if (!url) return PLACEHOLDER_IMAGE;
 
+  const imagesPath = url.match(/(?:^|\/)(images\/[^\s?#]+)/);
+  if (imagesPath) return `/${imagesPath[1]}`;
+
+  const trimmed = url.trim();
+
   try {
-    const { pathname } = new URL(url, "http://localhost");
-    return pathname.startsWith("/images/") ? pathname : url;
+    const { pathname } = new URL(trimmed, "http://localhost");
+    return pathname.startsWith("/images/") ? pathname : trimmed;
   } catch {
-    return url;
+    return PLACEHOLDER_IMAGE;
   }
 }
