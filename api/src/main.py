@@ -6,8 +6,14 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from models import __all__  # Registers all SQLAlchemy models
 
 # Project-specific imports
+from product.router import router as product_router
+from review.router import router as review_router
+from category.router import router as category_router
+from brand.router import router as brand_router
+from collection.router import router as collection_router
 
 # Global Imports
 from constants import (
@@ -48,6 +54,13 @@ app.add_middleware(
     allow_methods=ALLOWED_HTTP_METHODS,
     allow_headers=ALLOWED_REQUEST_HEADERS,
 )
+
+# Register routes
+app.include_router(product_router)
+app.include_router(review_router)
+app.include_router(category_router)
+app.include_router(brand_router)
+app.include_router(collection_router)
 
 
 # Redirect the root path ('/') to the Swagger UI documentation

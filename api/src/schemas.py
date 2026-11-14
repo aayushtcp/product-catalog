@@ -8,7 +8,7 @@ from pydantic.alias_generators import to_camel
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .constants import CONFIG_DICT_EXTRA_FORBID
+from constants import CONFIG_DICT_EXTRA_FORBID
 
 
 # SQLAlchemy mixins

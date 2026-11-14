@@ -15,3 +15,6 @@ psycopg[binary]>=3.1,<4.0
 # Tests
 pytest>=8.0,<9.0
 httpx==0.28.1
+
+# Formatting
+black==26.10.1

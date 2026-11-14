@@ -4,8 +4,8 @@ import os
 from decimal import Decimal
 from typing import Any
 
-from .constants import API_BASE_URL_KEY
-from .schemas import ImageOut
+from constants import API_BASE_URL_KEY
+from schemas import ImageOut
 
 
 def base_url() -> str:

@@ -8,8 +8,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .constants import SCHEMA_MODEL_DUMP_JSON_MODE
-from .schemas import ErrorBody, ErrorDetail, ErrorResponse
+from constants import SCHEMA_MODEL_DUMP_JSON_MODE
+from schemas import ErrorBody, ErrorDetail, ErrorResponse
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,22 @@ def _json(status: int, code: str, message: str, details=None) -> JSONResponse:
     return JSONResponse(
         status_code=status, content=error_payload(code, message, details)
     )
+
+
+def handle_exception(error: Exception) -> JSONResponse:
+    """
+    Convert any exception raised in a router into the shared error response.
+
+    Args:
+        error (Exception): The exception caught in the router.
+
+    Returns:
+        JSONResponse: Error response (`ApiError` keeps its status, anything else is a 500).
+    """
+    if isinstance(error, ApiError):
+        return _json(error.status_code, error.code, error.message, error.details)
+    logger.exception("Unhandled error", exc_info=error)
+    return _json(500, "INTERNAL_ERROR", "Unexpected server error")
 
 
 def register_exception_handlers(app: FastAPI) -> None:
