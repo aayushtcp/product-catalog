@@ -11,7 +11,7 @@ from schemas import ErrorResponse, Page
 from .schemas import ReviewOut
 from .services import list_product_reviews
 
-router = APIRouter(prefix="/products", tags=["reviews"])
+router = APIRouter(prefix="/api/products", tags=["reviews"])
 
 
 @router.get(

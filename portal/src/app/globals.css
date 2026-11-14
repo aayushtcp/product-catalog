@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* Brand palette (from the Murmur reference) */
+:root {
+  --dusk-blue: #8fb4e3;
+  --midnight-navy: #0d1a33;
+  --sunset-orange: #ff6a2b;
+
+  /* Derived shades */
+  --navy-800: #16264a;
+  --navy-700: #22345c;
+  --orange-600: #e85a1c;
+  --orange-100: #ffe6da;
+  --dusk-100: #e8f0fa;
+  --dusk-50: #f4f8fd;
+}
+
+/* Expose them as Tailwind utilities: bg-navy, text-dusk, border-sunset, ... */
+@theme inline {
+  --color-dusk: var(--dusk-blue);
+  --color-dusk-100: var(--dusk-100);
+  --color-dusk-50: var(--dusk-50);
+
+  --color-navy: var(--midnight-navy);
+  --color-navy-800: var(--navy-800);
+  --color-navy-700: var(--navy-700);
+
+  --color-sunset: var(--sunset-orange);
+  --color-sunset-600: var(--orange-600);
+  --color-sunset-100: var(--orange-100);
+
+  --font-sans: var(--font-inter-tight), system-ui, sans-serif;
+}
