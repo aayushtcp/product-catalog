@@ -91,3 +91,14 @@ export type Review = {
   helpfulCount: number;
   createdAt: string;
 };
+
+export type RatingBucket = {
+  rating: number;
+  count: number;
+};
+
+export type RatingSummary = {
+  average: number | null;
+  count: number;
+  breakdown: RatingBucket[];
+};

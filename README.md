@@ -64,6 +64,8 @@ collections. It upserts source rows and rebuilds image and collection links.
   attribute searches.
 - Review, image, variant, category-parent, and collection-link indexes support
   their related detail pages and lists.
+- `reviews (product_id, rating)` supports the rating breakdown, which groups the
+  reviews of one product by rating.
 
 ## API
 
@@ -74,6 +76,7 @@ All endpoints return JSON. Only active products are visible.
 | GET | `/api/products/` | Product list with filters, sorting, and pagination. |
 | GET | `/api/products/{slug}/` | Product detail and variants. |
 | GET | `/api/products/{slug}/reviews/` | Product reviews, newest first. |
+| GET | `/api/products/{slug}/reviews/summary/` | Rating breakdown of a product's reviews. |
 | GET | `/api/products/{slug}/similar/` | Up to four similar products. |
 | GET | `/api/categories/` | Category tree with product counts. |
 | GET | `/api/brands/` | Brands with product counts. |
@@ -124,6 +127,35 @@ Errors use one shape:
 Common codes are `VALIDATION_ERROR` (400), `NOT_FOUND` (404), and
 `INTERNAL_ERROR` (500).
 
+### Rating breakdown
+
+`GET /api/products/{slug}/reviews/summary/` returns the star distribution of a
+product's reviews:
+
+```http
+GET /api/products/shaggy-diamond-rug/reviews/summary/
+```
+
+```json
+{
+  "average": 4.1,
+  "count": 18,
+  "breakdown": [
+    { "rating": 5, "count": 9 },
+    { "rating": 4, "count": 4 },
+    { "rating": 3, "count": 3 },
+    { "rating": 2, "count": 1 },
+    { "rating": 1, "count": 1 }
+  ]
+}
+```
+
+The counts come from a single `GROUP BY rating` query in PostgreSQL, so the
+database does the aggregation and the API always receives five rows. It is a
+separate endpoint from the review list so that paginating the reviews does not
+recompute the breakdown. A product without reviews returns `average: null`,
+`count: 0` and five empty buckets, and a hidden product returns `404`.
+
 ## Search
 
 Search splits `q` into words. Every word must match at least one of: product
@@ -148,6 +180,26 @@ ranked with these weights:
 | Shared tags | 1 each, maximum 3 |
 
 In-stock products come first, then the score. The API returns at most four.
+
+## Bonus
+
+So far the rating breakdown is implemented: the detail page shows the average
+rating, the number of reviews and a bar per star rating (5★ down to 1★), built
+from the `reviews` table with one `GROUP BY` query.
+
+The next ones I would add, in order of value for the effort:
+
+- Sort reviews by most helpful (`?sort=helpful`), which reuses the
+  `helpful_count` column.
+- Search autocomplete with a prefix query and a debounced input.
+- Typo tolerance with PostgreSQL `pg_trgm`, as a fallback for searches that
+  return no rows, so exact matches keep their precision.
+- Relevance ranking, so a match in the product name ranks above a match in the
+  description.
+- Filter counts that follow the current search, so a brand shows "Oakline (6)"
+  for the current result set.
+- Recently viewed products in `localStorage`.
+- GitHub Actions that run the tests on every push.
 
 ## Data issues handled
 

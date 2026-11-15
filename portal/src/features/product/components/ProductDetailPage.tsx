@@ -9,9 +9,11 @@ import ProductImage from "@/shared/components/ui/ProductImage";
 import { formatPrice } from "@/shared/utils";
 import { useGetProductDetails } from "../hooks/useGetProductDetails";
 import { useGetProductReviews } from "../hooks/useGetProductReviews";
+import { useGetReviewSummary } from "../hooks/useGetReviewSummary";
 import { useGetSimilarProduct } from "../hooks/useGetSimilarProduct";
 import { useImageIndex } from "../utils";
 import ProductCard from "./ui/ProductCard";
+import RatingBreakdown from "./ui/RatingBreakdown";
 
 const LABELS: Record<string, [string, string?]> = {
   pileHeightMm: ["Pile height", "mm"],
@@ -50,55 +52,69 @@ const chip = (active: boolean, soldOut: boolean) =>
 function Reviews({ slug }: { slug: string }) {
   const [page, setPage] = useState(1);
   const { data, isPending, isError } = useGetProductReviews(slug, page);
-
-  if (isPending) return <p>Loading reviews…</p>;
-  if (isError) return <p>Could not load reviews.</p>;
-  if (data.items.length === 0)
-    return <p className="text-navy-700">No reviews yet.</p>;
+  const summary = useGetReviewSummary(slug);
 
   return (
     <div>
-      <ul className="grid gap-4">
-        {map(data.items, (r) => (
-          <li
-            key={r.id}
-            className="rounded-xl border border-dusk-100 bg-white p-4"
-          >
-            <p className="font-bold">
-              {"★".repeat(r.rating)}
-              {"☆".repeat(5 - r.rating)} {r.title}
-            </p>
-            {r.body && <p className="mt-1">{r.body}</p>}
-            <p className="mt-2 text-sm text-navy-700">
-              {new Date(r.createdAt).toLocaleDateString()}
-              {r.verifiedPurchase && " · Verified purchase"}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <div className="mb-6">
+        <RatingBreakdown
+          summary={summary.data}
+          isPending={summary.isPending}
+          isError={summary.isError}
+        />
+      </div>
 
-      {data.totalPages > 1 && (
-        <div className="mt-4 flex items-center gap-4">
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-            className="font-semibold disabled:opacity-40"
-          >
-            Previous
-          </button>
-          <span className="text-sm">
-            Page {page} of {data.totalPages}
-          </span>
-          <button
-            type="button"
-            disabled={page >= data.totalPages}
-            onClick={() => setPage(page + 1)}
-            className="font-semibold disabled:opacity-40"
-          >
-            Next
-          </button>
-        </div>
+      {isPending ? (
+        <p>Loading reviews…</p>
+      ) : isError ? (
+        <p>Could not load reviews.</p>
+      ) : data.items.length === 0 ? (
+        <p className="text-navy-700">No reviews yet.</p>
+      ) : (
+        <>
+          <ul className="grid gap-4">
+            {map(data.items, (r) => (
+              <li
+                key={r.id}
+                className="rounded-xl border border-dusk-100 bg-white p-4"
+              >
+                <p className="font-bold">
+                  {"★".repeat(r.rating)}
+                  {"☆".repeat(5 - r.rating)} {r.title}
+                </p>
+                {r.body && <p className="mt-1">{r.body}</p>}
+                <p className="mt-2 text-sm text-navy-700">
+                  {new Date(r.createdAt).toLocaleDateString()}
+                  {r.verifiedPurchase && " · Verified purchase"}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          {data.totalPages > 1 && (
+            <div className="mt-4 flex items-center gap-4">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage(page - 1)}
+                className="font-semibold disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <span className="text-sm">
+                Page {page} of {data.totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={page >= data.totalPages}
+                onClick={() => setPage(page + 1)}
+                className="font-semibold disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

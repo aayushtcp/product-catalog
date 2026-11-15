@@ -6,4 +6,5 @@ export const ENDPOINTS = {
   brands: "/brands/",
   // Reviews live outside the /api prefix on the backend.
   reviews: (slug: string) => `/products/${slug}/reviews/`,
+  reviewSummary: (slug: string) => `/products/${slug}/reviews/summary/`,
 };

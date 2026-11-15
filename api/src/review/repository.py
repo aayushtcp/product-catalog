@@ -1,6 +1,6 @@
 """Database access for reviews."""
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from enums import ProductStatus
@@ -48,3 +48,26 @@ async def get_reviews_from_db(
         .order_by(Review.created_at.desc(), Review.id.desc())
     )
     return await paginate_items(db, query, params)
+
+
+async def get_rating_counts(db: AsyncSession, product_id: str) -> dict[int, int]:
+    """
+    Count the reviews of a product per star rating.
+
+    The aggregation runs in the database with a single `GROUP BY`, so the
+    number of rows sent to the API stays at five, whatever the review count.
+
+    Args:
+        db (AsyncSession): SQLAlchemy async DB session.
+        product_id (str): Product ID.
+
+    Returns:
+        dict[int, int]: Number of reviews per rating. Ratings without reviews
+        are not present in the mapping.
+    """
+    rows = await db.execute(
+        select(Review.rating, func.count())
+        .where(Review.product_id == product_id)
+        .group_by(Review.rating)
+    )
+    return {rating: count for rating, count in rows.all()}

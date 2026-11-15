@@ -26,3 +26,31 @@ class ReviewOut(CamelModel):
     verified_purchase: bool
     helpful_count: int
     created_at: datetime
+
+
+class RatingBucket(CamelModel):
+    """
+    How many reviews have one star rating.
+
+    Attributes:
+        rating (int): The star rating, from 1 to 5.
+        count (int): Number of reviews with this rating.
+    """
+
+    rating: int
+    count: int
+
+
+class RatingSummary(CamelModel):
+    """
+    Rating breakdown of a product's reviews.
+
+    Attributes:
+        average (float | None): Average rating, None when there are no reviews.
+        count (int): Total number of reviews.
+        breakdown (list[RatingBucket]): One bucket per star rating, 5 down to 1.
+    """
+
+    average: float | None
+    count: int
+    breakdown: list[RatingBucket]
